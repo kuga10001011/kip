@@ -1,0 +1,50 @@
+<form *ngIf="userForm" [formGroup]="userForm" class="form-container">
+  <mat-card class="mat-card mat-elevation-z5 center-element-holder">
+    <div fxLayout="column" fxFlexFill>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-header>
+          <mat-card-title *ngIf="mode == 'add'">
+            add new user
+          </mat-card-title>
+          <mat-card-title *ngIf="mode == 'edit'">
+            edit user
+          </mat-card-title>
+          <mat-card-title *ngIf="mode == 'login'">
+            log in
+          </mat-card-title>
+        </mat-card-header>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput formControlName="username" placeholder="username">
+            <mat-error *ngIf="userForm.hasError('required', 'username')">username required</mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput placeholder="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password" required>
+            <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            <mat-error *ngIf="userForm.hasError('required', 'password')">password required</mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center" *ngIf="mode != 'login'">
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput [type]="'email'" formControlName="email" placeholder="email">
+            <mat-error *ngIf="userForm.hasError('email', 'email')">valid email required</mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-actions>
+          <button (click)="submit()" mat-raised-button="" color="primary">submit</button>
+          <button mat-raised-button="" color="primary" [routerLink]="'/user/manage'" [queryParams]="{mode: 'add'}" *ngIf="mode == 'login'">create new user</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
+</form>

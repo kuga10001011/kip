@@ -1,0 +1,59 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '~@angular/material' as mat;
+// Plus imports for other components in your app.
+
+@import '~@angular/material/theming';
+$custom-typography: mat-typography-config(
+  $font-family: 'Courier New',
+  $display-4:     mat-typography-level(122px, 122px, 300),
+  $display-3:     mat-typography-level(66px, 66px, 400),
+  $display-2:     mat-typography-level(55px, 58px, 400),
+  $display-1:     mat-typography-level(44px, 50px, 400),
+  $headline:      mat-typography-level(34px, 42px, 400),
+  $title:         mat-typography-level(30px, 42px, 500),
+  $subheading-2:  mat-typography-level(26px, 38px, 400),
+  $subheading-1:  mat-typography-level(25px, 34px, 400),
+  $body-2:        mat-typography-level(24px, 34px, 500),
+  $body-1:        mat-typography-level(24px, 30px, 400),
+  $caption:       mat-typography-level(22px, 30px, 400),
+  $button:        mat-typography-level(24px, 24px, 500),
+  $input:         mat-typography-level(26px, 1.125, 400)
+);
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core($custom-typography);
+
+body, html {
+  font-size: mat-font-size($custom-typography, body-1);
+  font-family: mat-font-family($custom-typography);
+  line-height: mat-line-height($custom-typography, body-1);
+}
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$kip-primary: mat.define-palette(mat.$grey-palette, 900, 800, 400);
+$kip-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$kip-warn: mat.define-palette(mat.$yellow-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$kip-theme: mat.define-dark-theme((
+  color: (
+    primary: $kip-primary,
+    accent: $kip-accent,
+    warn: $kip-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($kip-theme);
+

@@ -1,0 +1,102 @@
+<form *ngIf="dataLoaded" [formGroup]="rowForm" class="form-container">
+  <mat-card class="mat-card mat-elevation-z5 center-element-holder">
+    <div fxLayout="column" fxFlexFill>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-header>
+          <mat-card-title *ngIf="mode == 'add'">
+            add new row
+          </mat-card-title>
+          <mat-card-title *ngIf="mode == 'edit'">
+            edit row
+          </mat-card-title>
+        </mat-card-header>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-content>
+          <mat-grid-list cols="3" class="grid-layout-custom" rowHeight="2:1">
+            <mat-grid-tile *ngFor="let field of datastore.fields; let i = index;" [ngClass]="{'highlight-green' : field.required, 'highlight-grey' : !field.required}">
+              <ng-container [ngSwitch]="field.type" *ngIf="field.name + field.id as controlKey">
+                <ng-container *ngSwitchCase="'STRING'">
+                  <mat-form-field>
+                    <input matInput formControlName="{{ controlKey }}" placeholder="{{ field.name }}">
+                    <mat-error *ngIf="rowForm.hasError('required', '{{ controlKey }}')">{{ field.name }} required</mat-error>
+                  </mat-form-field>
+                </ng-container>
+                <ng-container *ngSwitchCase="'RANGE'">
+                  <mat-form-field>
+                    <mat-label>{{ field.name }}</mat-label>
+                    <input matInput formControlName="{{ controlKey + '_floor' }}" placeholder="min">
+                    <span>&ndash;</span>
+                    <input matInput formControlName="{{ controlKey + '_ceiling' }}" placeholder="max">
+                  </mat-form-field>
+                </ng-container>
+                <ng-container *ngSwitchCase="'URL'">
+                  <mat-form-field>
+                    <input matInput type="url" formControlName="{{ controlKey }}" placeholder="{{ field.name }}">
+                    <mat-error *ngIf="rowForm.hasError('required', '{{ controlKey }}')">{{ field.name }} required</mat-error>
+                  </mat-form-field>
+                </ng-container>
+                <ng-container *ngSwitchCase="'ENUM'">
+                  <mat-form-field>
+                    <mat-label>{{ field.name }}</mat-label>
+                    <mat-select formControlName="{{ controlKey }}">
+                      <ng-container *ngFor="let option of field.allowedValues">
+                        <mat-option value="{{ option }}"> {{ option }} </mat-option>
+                      </ng-container>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-container>
+                <ng-container *ngSwitchCase="'BOOLEAN'">
+                  <mat-checkbox formControlName="{{ controlKey }}">{{ field.name }}</mat-checkbox>
+                </ng-container>
+                <ng-container *ngSwitchCase="'DATE'">
+                  <mat-form-field>
+                    <mat-label>{{ field.name }}</mat-label>
+                    <input readonly matInput formControlName="{{ controlKey }}" [matDatepicker]="datepicker_i">
+                    <mat-datepicker-toggle matSuffix [for]="datepicker_i"></mat-datepicker-toggle>
+                    <mat-datepicker #datepicker_i></mat-datepicker>
+                  </mat-form-field>
+                </ng-container>
+                <ng-container *ngSwitchCase="'LIST'">
+                  <div fxLayout="column" fxLayoutAlign="center center">
+                    <div fxLayout="row" fxLayoutAlign="center center">
+                      <mat-form-field>
+                        <input matInput formControlName="{{ controlKey }}" placeholder="{{ field.name }}" #list_item_i>
+                      </mat-form-field>
+                      <button (click)="addListItem(controlKey, list_table_i, list_item_i)" mat-icon-button matTooltip="click to add" class="iconbutton" color="primary">
+                        <mat-icon aria-label="Add">add</mat-icon>
+                      </button>
+                    </div>
+                    <div fxLayout="row" fxLayoutAlign="center center">
+                      <table #list_table_i mat-table [dataSource]="getDatasource(controlKey)">
+                        <ng-container matColumnDef="list item">
+                          <th mat-header-cell *matHeaderCellDef> list item </th>
+                          <td mat-cell *matCellDef="let listItem"> {{ listItem }} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef> actions </th>
+                          <td mat-cell *matCellDef="let listItem">
+                            <button (click)="deleteListItem(controlKey, listItem, list_table_i, list_item_i)" mat-icon-button matTooltip="click to delete" class="iconbutton" color="warn">
+                              <mat-icon aria-label="Delete">delete</mat-icon>
+                            </button>
+                          </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="['list item', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['list item', 'actions'];"></tr>
+                      </table>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-actions>
+          <button (click)="submit()" mat-raised-button="" color="primary">save</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
+</form>
