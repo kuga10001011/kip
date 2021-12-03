@@ -107,6 +107,7 @@ export class DatastoreManageComponent implements OnInit, AfterViewInit {
     this.enumTable.changes.subscribe(() => {
       if (this.enumTable.get(0)) {
         this.addTableComponents(this.enumTable.get(0)!, this.enumVals, this.enumValsSet);
+        this.resetTableComponents(this.enumTable.get(0)!, false);
       }
     });
     this.fieldsTable.get(0)?.renderRows();
@@ -150,8 +151,6 @@ export class DatastoreManageComponent implements OnInit, AfterViewInit {
     if (this.enumTable.get(0)) {
       if (this.selectedFieldType == 'ENUM') {
         this.addTableComponents(this.enumTable.get(0)!, this.enumVals, this.enumValsSet);
-      } else {
-        this.tableDataComponents.delete(this.enumTable.get(0));
       }
     }
   }
@@ -220,8 +219,12 @@ export class DatastoreManageComponent implements OnInit, AfterViewInit {
     this.datastoreForm.patchValue({'field_required': field.required});
     if (field.type == 'ENUM') {
       this.enumValsSet = field.allowedValues;
-      this.enumVals = Array.from(this.enumValsSet);
-      this.enumTable.get(0)!.renderRows();
+      this.enumValsSet.forEach((enumVal: string) => {
+        this.enumVals.push(enumVal);
+      });
+      if (this.enumTable.get(0)) {
+        this.enumTable.get(0)!.renderRows();
+      }
     }
   }
 

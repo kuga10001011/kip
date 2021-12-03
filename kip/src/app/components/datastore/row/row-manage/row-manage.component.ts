@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RowService } from "../row.service";
@@ -25,6 +25,10 @@ export class RowManageComponent implements OnInit {
   dataLoaded: boolean = false;
   listItems: Map<string, Set<string>> = new Map<string, Set<string>>();
   listDatasources: Map<string, MatTableDataSource<string>> = new Map<string, MatTableDataSource<string>>();
+  fieldValuesToUpdate: Map<number, Value> = new Map<number, Value>();
+  fieldValuesToAdd: Set<FieldValue> = new Set<FieldValue>();
+  fieldValuesToDelete: Set<number> = new Set<number>();
+  originalValues: Map<number, FieldValue> = new Map<number, FieldValue>();
 
   constructor(private rowService: RowService, private datastoreService: DatastoreService, private activatedRoute: ActivatedRoute, private router: Router) {
     this.rowForm = new FormGroup({});
@@ -113,6 +117,7 @@ export class RowManageComponent implements OnInit {
     });
     if (fieldValues) {
       fieldValues.forEach((fieldValue: FieldValue) => {
+        this.originalValues.set(fieldValue.field.id!, fieldValue);
         const controlKey = fieldValue.field.name + fieldValue.field.id;
         switch (fieldValue.field.type) {
           case 'RANGE':
@@ -126,7 +131,7 @@ export class RowManageComponent implements OnInit {
             this.listDatasources.set(controlKey, new MatTableDataSource<string>(Array.from(this.listItems.get(controlKey)!)));
             break;
           default:
-            this.rowForm.patchValue({[controlKey]: fieldValue.value});
+            this.rowForm.patchValue({[controlKey]: fieldValue.value.value});
             break;
         }
       });
@@ -166,8 +171,45 @@ export class RowManageComponent implements OnInit {
     return this.listDatasources.get(controlKey)!;
   }
 
+  getRowSpan(field: Field): number {
+    switch (field.type) {
+      case 'LIST':
+        return 2;
+      default:
+        return 1;
+    }
+  }
+
+  getColSpan(field: Field): number {
+    switch (field.type) {
+      case 'URL':
+        return 2;
+      default:
+        return 1;
+    }
+  }
+
+  clear(field: Field): void {
+    const controlKey = field.name + field.id;
+    switch (field.type) {
+      case 'LIST':
+        this.listItems.get(controlKey)!.clear();
+        this.listDatasources.set(controlKey, new MatTableDataSource<string>(Array.from(this.listItems.get(controlKey)!)));
+        break;
+      case 'RANGE':
+        this.rowForm.setControl(controlKey + '_floor', new FormControl());
+        this.rowForm.setControl(controlKey + '_ceiling', new FormControl());
+        break;
+      default:
+        this.rowForm.setControl(controlKey, new FormControl());
+        break;
+    }
+    if (this.originalValues.get(field.id!)) {
+      this.fieldValuesToDelete.add(this.originalValues.get(field.id!)!.id!);
+    }
+  }
+
   submit(): void {
-    const fieldValues: Set<FieldValue> = new Set<FieldValue>();
     this.datastore.fields.forEach((field: Field) => {
       const controlKey = field.name + field.id;
       let value;
@@ -189,12 +231,21 @@ export class RowManageComponent implements OnInit {
           break;
       }
       if (value) {
-        fieldValues.add(new FieldValue().set(field, value));
+        if (this.mode == 'add' || !this.originalValues.has(field.id!)) {
+          this.fieldValuesToAdd.add(new FieldValue().set(field, value));
+        }
+        else if(this.mode == 'edit') {
+          const originalValue: FieldValue = this.originalValues.get(field.id!)!;
+          if (originalValue.value.value != value.value) {
+            this.fieldValuesToUpdate.set(originalValue.id!, value);
+            this.fieldValuesToDelete.delete(originalValue.id!);
+          }
+        }
       }
     });
     switch (this.mode) {
       case 'add':
-        this.rowService.add(fieldValues, this.datastore).subscribe(
+        this.rowService.add(this.fieldValuesToAdd, this.datastore).subscribe(
           data => {
             console.log(data);
             console.log("successfully added");
@@ -208,7 +259,18 @@ export class RowManageComponent implements OnInit {
         );
         break;
       case 'edit':
-
+        this.rowService.update(this.row.id!, this.fieldValuesToAdd, this.fieldValuesToUpdate, this.fieldValuesToDelete).subscribe(
+          data => {
+            console.log(data);
+            console.log("successfully updated");
+          },
+          error => {
+            console.log(error);
+          },
+          () => {
+            this.router.navigate(['/datastore/view'], {queryParams: {datastoreId: this.datastore.id}})
+          }
+        );
         break;
     }
   }

@@ -18,6 +18,7 @@ export class DatastoreViewComponent implements OnInit {
   datastore!: Datastore;
   datastoreLoaded: boolean = false;
   columnHeaders: string[] = [];
+  fieldNameToType: Map<string, string> = new Map<string, string>();
   rows: Row[] = [];
   rowValueMap: Map<Row, Map<string, FieldValue>> = new Map<Row, Map<string, FieldValue>>();
   datasource: MatTableDataSource<Row> = new MatTableDataSource<Row>(this.rows);
@@ -44,6 +45,16 @@ export class DatastoreViewComponent implements OnInit {
         if (this.datastore.fields) {
           this.datastore.fields.forEach((field: Field) => {
             this.columnHeaders.push(field.name);
+            this.fieldNameToType.set(field.name, field.type);
+            switch (field.type) {
+              case 'URL':
+              case 'LIST':
+                break;
+              case 'STRING':
+                break;
+              default:
+                break;
+            }
           });
           this.columnHeaders.push('actions');
         }
@@ -81,6 +92,18 @@ export class DatastoreViewComponent implements OnInit {
         window.location.reload();
       }
     );
+  }
+
+  getStyleFromFieldName(fieldName: string): string {
+    switch(this.fieldNameToType.get(fieldName)!) {
+      case 'STRING':
+      case 'LIST':
+        return "width-500-px";
+      case 'URL':
+        return "width-700-px";
+      default:
+        return "width-200-px";
+    }
   }
 
 }

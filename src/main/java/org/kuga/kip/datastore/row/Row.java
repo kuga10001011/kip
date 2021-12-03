@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,6 +61,12 @@ public class Row {
             this.fieldValues.add(fieldValue);
             fieldValue.setRow(this);
         }
+    }
+
+    public void removeFieldValues(FieldValue ... fieldValues) {
+        Arrays.stream(fieldValues).forEachOrdered(fieldValue -> {
+            this.fieldValues.remove(fieldValue);
+        });
     }
 
     public Datastore getDatastore() {

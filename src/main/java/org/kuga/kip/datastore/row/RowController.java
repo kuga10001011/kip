@@ -15,8 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +39,8 @@ public class RowController {
     @Autowired
     FieldValueRepository fieldValueRepository;
 
-    @GetMapping(value = "/", params = {"id"})
-    public ResponseEntity<Row> getById(@RequestParam Long id) {
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Row> getById(@PathVariable Long id) {
         Optional<Row> jobListing = rowRepository.findById(id);
         return jobListing.map(listing -> new ResponseEntity<>(listing, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -66,16 +67,7 @@ public class RowController {
             JSONObject requestObject = new JSONObject(requestData);
             Row row = new Row();
             JSONArray fieldValuesArray = requestObject.getJSONArray("fieldValues");
-            for (Object o : fieldValuesArray) {
-                JSONObject fieldValuesObject = (JSONObject) o;
-                Optional<Field> fieldOptional = fieldRepository.findById(fieldValuesObject.getJSONObject("field").getLong("id"));
-                if (fieldOptional.isPresent()) {
-                    Field field = fieldOptional.get();
-                    Value<?> value = Value.build(fieldValuesObject.getJSONObject("value"), field.getType());
-                    FieldValue fieldValue = new FieldValue(field, value);
-                    row.addFieldValues(fieldValue);
-                }
-            }
+            addValuesToRow(fieldValuesArray, row);
             Datastore datastore = datastoreRepository.getById(requestObject.getJSONObject("datastore").getLong("id"));
             datastore.addRows(row);
             datastoreRepository.save(datastore);
@@ -86,13 +78,76 @@ public class RowController {
         }
     }
 
+    @PutMapping(value = "/update/{rowId}", consumes = "application/json")
+    public ResponseEntity<Row> update(@PathVariable("rowId") Long rowId, @RequestBody String requestData) {
+        try {
+            JSONObject requestObject = new JSONObject(requestData);
+            Optional<Row> rowOptional = rowRepository.findById(rowId);
+            if (rowOptional.isPresent()) {
+                Row row = rowOptional.get();
+                if (requestObject.has("valuesToAdd")) {
+                    addValuesToRow(requestObject.getJSONArray("valuesToAdd"), row);
+                }
+                if (requestObject.has("valuesToUpdate")) {
+                    JSONObject valuesToUpdateObject = requestObject.getJSONObject("valuesToUpdate");
+                    for (String fieldValueIdKey : valuesToUpdateObject.keySet()) {
+                        Optional<FieldValue> fieldValueOptional = fieldValueRepository.findById(Long.valueOf(fieldValueIdKey));
+                        if (fieldValueOptional.isPresent()) {
+                            FieldValue fieldValue = fieldValueOptional.get();
+                            Value<?> value = Value.build(valuesToUpdateObject.getJSONObject(fieldValueIdKey), fieldValue.getField().getType());
+                            fieldValue.setValue(value);
+                            fieldValueRepository.save(fieldValue);
+                        }
+                    }
+                }
+                if (requestObject.has("valuesToDelete")) {
+                    JSONArray valuesToDeleteArray = requestObject.getJSONArray("valuesToDelete");
+                    for (Object fieldValueIdObject : valuesToDeleteArray) {
+                        Long fieldValueId = Long.valueOf(fieldValueIdObject.toString());
+                        Optional<FieldValue> fieldValueOptional = fieldValueRepository.findById(fieldValueId);
+                        if (fieldValueOptional.isPresent()) {
+                            FieldValue fieldValue = fieldValueOptional.get();
+                            row.removeFieldValues(fieldValue);
+                            rowRepository.save(row);
+                            Field field = fieldValue.getField();
+                            field.deleteFieldValues(fieldValue);
+                            fieldRepository.save(field);
+                            fieldValueRepository.deleteById(fieldValueId);
+                        }
+                    }
+                }
+                Row _row = rowRepository.save(row);
+                return new ResponseEntity<>(_row, HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void addValuesToRow(JSONArray fieldValuesArray, Row row) throws ParseException, MalformedURLException {
+        for (Object o : fieldValuesArray) {
+            JSONObject fieldValuesObject = (JSONObject) o;
+            Optional<Field> fieldOptional = fieldRepository.findById(fieldValuesObject.getJSONObject("field").getLong("id"));
+            if (fieldOptional.isPresent()) {
+                Field field = fieldOptional.get();
+                Value<?> value = Value.build(fieldValuesObject.getJSONObject("value"), field.getType());
+                FieldValue fieldValue = new FieldValue(field, value);
+                row.addFieldValues(fieldValue);
+            }
+        }
+    }
+
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<HttpStatus> delete(@PathVariable("id") Long id) {
         try {
             Row row = rowRepository.findById(id).get();
             for (FieldValue fieldValue: row.getFieldValues()) {
                 Field field = fieldValue.getField();
-                field.removeFieldValues(fieldValue);
+                field.deleteFieldValues(fieldValue);
                 fieldRepository.save(field);
                 fieldValueRepository.deleteById(fieldValue.getId());
             }

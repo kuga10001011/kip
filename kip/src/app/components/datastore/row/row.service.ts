@@ -5,6 +5,7 @@ import { Row } from "./row.model";
 import { TokenStorageService } from "../../user/auth/token-storage.service";
 import { FieldValue } from "../field-value.model";
 import { Datastore } from "../datastore.model";
+import { Value } from "../value/value.model";
 
 const baseUrl = "http://localhost:49154/row"
 
@@ -25,10 +26,7 @@ export class RowService {
   }
 
   getById(id: number): Observable<Row> {
-    let params = {
-      'id': id
-    }
-    return this.http.get<Row>(`${baseUrl}`, {params: params});
+    return this.http.get<Row>(`${baseUrl}/${id}`, {headers: this.headers});
   }
 
   delete(data: Row): Observable<any> {
@@ -37,6 +35,13 @@ export class RowService {
 
   add(fieldValues: Set<FieldValue>, datastore: Datastore): Observable<Row> {
     return this.http.post<Row>(`${baseUrl}/add`, {fieldValues: Array.from(fieldValues), datastore: datastore}, {headers: this.headers});
+  }
+
+  update(rowId: number, valuesToAdd: Set<FieldValue>, valuesToUpdate: Map<number, Value>, valuesToDelete: Set<number>): Observable<Row> {
+    let valuesToUpdateObject = Array.from(valuesToUpdate).reduce((valuesToUpdateObject, [key, value]) => (
+      Object.assign(valuesToUpdateObject, { [key]: value })
+    ), {});
+    return this.http.put<Row>(`${baseUrl}/update/${rowId}`, {valuesToAdd: Array.from(valuesToAdd), valuesToUpdate: valuesToUpdateObject, valuesToDelete: Array.from(valuesToDelete)}, {headers: this.headers});
   }
 
 }

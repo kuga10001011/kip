@@ -4,20 +4,33 @@ html, body {
 
 body {
   margin: 0;
+  overflow: auto;
 }
 
 .nav-spacer {
   flex: 1 1 auto;
 }
 
-.centered-element-holder {
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
-  height: 90%;
+.mat-toolbar-row div {
+  padding: 10px;
+}
+
+.mat-card {
+  padding: 10px;
+  box-sizing: border-box;
+  width: fit-content;
+  min-width: 100%;
+  height: fit-content;
+  min-height: 100%;
   display: flex !important;
+}
+
+.centered-element-holder {
   justify-content: center;
   align-items: center;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
 }
 
 th.mat-header-cell {
@@ -27,15 +40,31 @@ th.mat-header-cell {
   font-weight: bold;
 }
 
+.width-200-px {
+  flex: 200px;
+  min-width: 200px;
+}
+
+.width-500-px {
+  flex: 500px;
+  min-width: 500px;
+}
+
+.width-700-px {
+  flex: 700px;
+  min-width: 700px;
+}
+
 .mat-sort-header-content {
   width: 100%;
   justify-content: center;
 }
 
-td.mat-cell {
+.mat-cell, .mat-header-cell {
   text-align: center;
   justify-content: center;
   vertical-align: center;
+  padding: 12px !important;
 }
 
 .mat-row:hover {
@@ -45,8 +74,9 @@ td.mat-cell {
 
 table {
   border-spacing: 0 8px !important;
-  width: 100%;
-  margin: 5% auto;
+  padding: 10px;
+  position: relative;
+  flex: 1 1 auto;
 }
 
 tr.mat-row {
@@ -57,28 +87,35 @@ tr.mat-row {
   width: 10% !important;
 }
 
+.mat-grid-tile {
+  overflow: auto !important;
+  text-align: center;
+  justify-content: center;
+  vertical-align: center;
+}
+
+.mat-grid-tile-content {
+  height: fit-content !important;
+  min-height: 100%;
+  width: fit-content !important;
+  min-width: 100%;
+  box-sizing: border-box;
+  padding: 10px !important;
+}
+
 .mat-form-field {
+  min-width: 300px;
+  width: 100%;
+  text-align: center;
+}
+
+.mat-input-ancestor-div {
   width: 100%;
 }
 
-::ng-deep .mat-input .mat-input-value {
-  width: fit-content;
-}
-
-::ng-deep .mat-input .mat-input-placeholder {
-  width: fit-content;
-}
-
-::ng-deep .mat-select .mat-select-value {
-  width: fit-content;
-}
-
-::ng-deep .mat-select .mat-select-placeholder {
-  width: fit-content;
-}
-
 .mat-form-field-infix {
-  width: fit-content;
+  width: fit-content !important;
+  text-align: center;
 }
 
 .grid-layout-custom {

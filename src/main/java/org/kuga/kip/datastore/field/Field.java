@@ -111,7 +111,7 @@ public class Field {
         this.fieldValues = fieldValues;
     }
 
-    public void removeFieldValues(FieldValue ... fieldValues) {
+    public void deleteFieldValues(FieldValue ... fieldValues) {
         Arrays.stream(fieldValues).forEachOrdered(fieldValue -> {
             this.fieldValues.remove(fieldValue);
         });

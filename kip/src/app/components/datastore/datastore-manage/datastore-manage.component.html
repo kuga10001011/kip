@@ -51,7 +51,7 @@
                     <mat-icon aria-label="Add">add</mat-icon>
                   </button>
                 </div>
-                <div fxLayout="row" fxLayoutAlign="center center">
+                <div fxLayout="row" fxLayoutAlign="center center" [hidden]="selectedFieldType == 'ENUM'">
                   <table #enumTable mat-table [dataSource]="enumsDatasource">
                     <ng-container matColumnDef="enum val">
                       <th mat-header-cell *matHeaderCellDef> enum val </th>
@@ -90,7 +90,7 @@
                 <ng-container matColumnDef="actions">
                   <th mat-header-cell *matHeaderCellDef> actions </th>
                   <td mat-cell *matCellDef="let field">
-                    <button (click)="editField(field)" mat-icon-button matTooltip="click to edit" class="iconbutton" color="primary">
+                    <button (click)="setSelectedFieldType(field.type); editField(field)" mat-icon-button matTooltip="click to edit" class="iconbutton" color="primary">
                       <mat-icon aria-label="Edit">edit</mat-icon>
                     </button>
                     <button (click)="deleteField(field, fieldsTable, false)" mat-icon-button matTooltip="click to delete" class="iconbutton" color="warn">
