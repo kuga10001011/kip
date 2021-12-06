@@ -2,6 +2,8 @@ package org.kuga.kip.user;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.kuga.kip.datastore.Datastore;
+import org.kuga.kip.datastore.field.Field;
+import org.kuga.kip.datastore.view.View;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import java.util.Arrays;
@@ -46,6 +49,10 @@ public class User {
     @JoinTable(name = "user_role_associations", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(targetEntity = View.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<View> views = new HashSet<>();
 
     public User() {}
 
@@ -116,6 +123,22 @@ public class User {
             this.roles.add(role);
             role.getUsers().add(this);
         });
+    }
+
+    public Set<View> getViews() {
+        return views;
+    }
+
+    public void setViews(Set<View> views) {
+        this.views = views;
+    }
+
+    public void addViews(View ... views) {
+        this.views.addAll(Arrays.asList(views));
+    }
+
+    public void deleteViews(View ... views) {
+        Arrays.asList(views).forEach(this.views::remove);
     }
 
 }

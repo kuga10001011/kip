@@ -5,7 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kuga.kip.datastore.Datastore;
 import org.kuga.kip.datastore.FieldValue;
-import org.kuga.kip.datastore.value.Value;
+import org.kuga.kip.datastore.view.View;
 
 import javax.persistence.*;
 import java.util.Arrays;
@@ -37,6 +37,10 @@ public class Field {
     @OneToMany(targetEntity = FieldValue.class)
     @JsonBackReference
     private Set<FieldValue> fieldValues = new HashSet<>();
+
+    @ManyToMany(targetEntity = View.class)
+    @JsonBackReference
+    private Set<View> views = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name="field_allowed_values", joinColumns=@JoinColumn(name="field_id"))
@@ -131,6 +135,22 @@ public class Field {
 
     public void addAllowedValues(String ... allowedValues) {
         this.allowedValues.addAll(Arrays.asList(allowedValues));
+    }
+
+    public Set<View> getViews() {
+        return views;
+    }
+
+    public void setViews(Set<View> views) {
+        this.views = views;
+    }
+
+    public void addViews(View ... views) {
+        this.views.addAll(Arrays.asList(views));
+    }
+
+    public void deleteViews(View ... views) {
+        this.views.removeAll(Arrays.asList(views));
     }
 
 }

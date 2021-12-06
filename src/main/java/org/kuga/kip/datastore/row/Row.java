@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.kuga.kip.datastore.Datastore;
 import org.kuga.kip.datastore.FieldValue;
-import org.kuga.kip.datastore.value.Value;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

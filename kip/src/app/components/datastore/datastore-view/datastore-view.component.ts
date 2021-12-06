@@ -7,6 +7,9 @@ import { Row } from "../row/row.model";
 import { MatTableDataSource } from "@angular/material/table";
 import { RowService } from "../row/row.service";
 import { FieldValue } from "../field-value.model";
+import { View } from "../view/view.model";
+import { TokenStorageService } from "../../user/auth/token-storage.service";
+import { User } from "../../user/user.model";
 
 @Component({
   selector: 'app-datastore-view',
@@ -22,8 +25,10 @@ export class DatastoreViewComponent implements OnInit {
   rows: Row[] = [];
   rowValueMap: Map<Row, Map<string, FieldValue>> = new Map<Row, Map<string, FieldValue>>();
   datasource: MatTableDataSource<Row> = new MatTableDataSource<Row>(this.rows);
+  views: Array<View> = new Array<View>();
+  user: User = this.tokenStorage.getUser();
 
-  constructor(private datastoreService: DatastoreService, private rowService: RowService, private activatedRoute: ActivatedRoute, private router: Router) { }
+  constructor(private datastoreService: DatastoreService, private rowService: RowService, private activatedRoute: ActivatedRoute, private router: Router, private tokenStorage: TokenStorageService) { }
 
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe(params => {
@@ -69,6 +74,13 @@ export class DatastoreViewComponent implements OnInit {
             }
           });
         }
+        if (this.datastore.views) {
+          this.datastore.views.forEach((view: View) => {
+            if (view.userIds.has(this.user.id!)) {
+              this.views.push(view);
+            }
+          });
+        }
       },
       error => {
         console.log(error);
@@ -104,6 +116,10 @@ export class DatastoreViewComponent implements OnInit {
       default:
         return "width-200-px";
     }
+  }
+
+  setSelectedView(view: View): void {
+
   }
 
 }

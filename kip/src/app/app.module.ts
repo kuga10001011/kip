@@ -18,6 +18,9 @@ import { DatastoreViewComponent } from './components/datastore/datastore-view/da
 import { HomeComponent } from './components/home/home.component';
 import { RowManageComponent } from './components/datastore/row/row-manage/row-manage.component';
 import { DatastoreManageComponent } from './components/datastore/datastore-manage/datastore-manage.component';
+import { ViewManageComponent } from './components/datastore/view/view-manage/view-manage.component';
+import { ViewComponent } from "./components/datastore/view/view.component";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 
 const routes: Routes = [
   { path: 'row/manage', component: RowManageComponent },
@@ -26,7 +29,8 @@ const routes: Routes = [
   { path: 'datastore/manage', component: DatastoreManageComponent },
   { path: 'user', component: UserComponent },
   { path: 'user/manage', component: UserManageComponent },
-  { path: 'home', component: HomeComponent }
+  { path: 'home', component: HomeComponent },
+  { path: 'view/manage', component: ViewManageComponent }
 ];
 
 @NgModule({
@@ -40,7 +44,9 @@ const routes: Routes = [
     UserManageComponent,
     DatastoreViewComponent,
     HomeComponent,
-    DatastoreManageComponent
+    DatastoreManageComponent,
+    ViewComponent,
+    ViewManageComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +56,8 @@ const routes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     FormsModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    DragDropModule
   ],
   providers: [],
   bootstrap: [AppComponent]

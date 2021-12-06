@@ -8,6 +8,23 @@
           </mat-card-title>
         </mat-card-header>
       </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <div fxLayout="column" fxLayoutAlign="center center">
+          <div fxLayout="row" fxLayoutAlign="center center">
+            <mat-select (selectionChange)="setSelectedView($event.value)">
+              <mat-label>select view</mat-label>
+              <mat-option *ngFor="let view of views" [value]="view">
+                {{ view.name }}
+              </mat-option>
+            </mat-select>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="center center">
+            <button [routerLink]="'/view/manage'" [queryParams]="{datastoreId: datastore.id, mode: 'add'}" mat-icon-button matTooltip="add view" class="iconbutton" color="primary">
+              <mat-icon aria-label="Add">add view</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
       <div fxLayout="row" fxLayoutAlign="center start">
         <table mat-table [dataSource]="datasource" matSort>
           <ng-container *ngFor="let columnHeader of columnHeaders">

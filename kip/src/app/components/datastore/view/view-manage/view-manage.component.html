@@ -1,0 +1,56 @@
+<form *ngIf="viewForm && datastoreLoaded" [formGroup]="viewForm" class="form-container">
+  <mat-card class="mat-card mat-elevation-z5 center-element-holder">
+    <div fxLayout="column" fxFlexFill>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-header>
+          <mat-card-title>
+            {{ mode }} view for {{ datastore.name }}
+          </mat-card-title>
+        </mat-card-header>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput formControlName="name" placeholder="name" #name>
+            <mat-error *ngIf="viewForm.hasError('required', 'name')">name required</mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-content>
+          <div class="mat-elevation-z5" fxLayout="row" fxLayoutAlign="center center">
+            <div class="card-list mat-elevation-z5 cdk-drop-list-container source" fxLayout="column" fxLayoutAlign="center center" fxFlex="50%">
+              <h2 class="mat-h2">available columns</h2>
+              <div cdkDropList #availableFieldsList="cdkDropList" [cdkDropListConnectedTo]="[chosenFieldsList]" [cdkDropListData]="fields" (cdkDropListDropped)="onFieldDrop($event)">
+                <div class="cdk-drag-item" cdkDrag *ngFor="let field of fields">
+                  <mat-card class="source">
+                    <mat-card-content>
+                      <h2>{{ field.name }}</h2>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            </div>
+            <div class="card-list mat-elevation-z5 cdk-drop-list-container sink" fxLayout="column" fxLayoutAlign="center center" fxFlex="50%">
+              <h2 class="mat-h2">chosen columns</h2>
+              <div cdkDropList #chosenFieldsList="cdkDropList" [cdkDropListConnectedTo]="[availableFieldsList]" [cdkDropListData]="chosenFields" (cdkDropListDropped)="onFieldDrop($event)" fxLayout="column" fxFlexFill>
+                <div class="cdk-drag-item" cdkDrag *ngFor="let field of chosenFields">
+                  <mat-card class="sink">
+                    <mat-card-content>
+                      <h2>{{ field.name }}</h2>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <mat-card-actions>
+          <button (click)="save()" mat-raised-button="" color="primary">save</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
+</form>

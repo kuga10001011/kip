@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.kuga.kip.datastore.row.Row;
 import org.kuga.kip.datastore.field.Field;
+import org.kuga.kip.datastore.view.View;
 import org.kuga.kip.user.User;
 
 import javax.persistence.CascadeType;
@@ -42,6 +43,10 @@ public class Datastore {
     @OneToMany(targetEntity = Row.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference
     private Set<Row> rows = new HashSet<>();
+
+    @OneToMany(targetEntity = View.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<View> views = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -113,6 +118,27 @@ public class Datastore {
     public void deleteFields(Field ... fields) {
         Arrays.stream(fields).forEachOrdered(field -> {
             this.fields.remove(field);
+        });
+    }
+
+    public Set<View> getViews() {
+        return views;
+    }
+
+    public void setViews(Set<View> views) {
+        this.views = views;
+    }
+
+    public void addViews(View ... views) {
+        Arrays.stream(views).forEachOrdered(view -> {
+            this.views.add(view);
+            view.setDatastore(this);
+        });
+    }
+
+    public void deleteViews(View ... views) {
+        Arrays.stream(views).forEachOrdered(view -> {
+            this.views.remove(view);
         });
     }
 
