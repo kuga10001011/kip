@@ -107,7 +107,7 @@ public class RowController {
                         Optional<FieldValue> fieldValueOptional = fieldValueRepository.findById(fieldValueId);
                         if (fieldValueOptional.isPresent()) {
                             FieldValue fieldValue = fieldValueOptional.get();
-                            row.removeFieldValues(fieldValue);
+                            row.deleteFieldValues(fieldValue);
                             rowRepository.save(row);
                             Field field = fieldValue.getField();
                             field.deleteFieldValues(fieldValue);
@@ -144,17 +144,34 @@ public class RowController {
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<HttpStatus> delete(@PathVariable("id") Long id) {
         try {
-            Row row = rowRepository.findById(id).get();
-            for (FieldValue fieldValue: row.getFieldValues()) {
-                Field field = fieldValue.getField();
-                field.deleteFieldValues(fieldValue);
-                fieldRepository.save(field);
-                fieldValueRepository.deleteById(fieldValue.getId());
+            Optional<Row> rowOptional = rowRepository.findById(id);
+            Optional<Datastore> datastoreOptional;
+            if (rowOptional.isPresent()) {
+                Row row = rowOptional.get();
+                datastoreOptional = datastoreRepository.findById(row.getDatastore().getId());
+                for (FieldValue fieldValue: row.getFieldValues()) {
+                    Field field = fieldValue.getField();
+                    field.deleteFieldValues(fieldValue);
+                    fieldRepository.save(field);
+                    row.deleteFieldValues(fieldValue);
+                    rowRepository.save(row);
+                    fieldValueRepository.delete(fieldValue);
+                }
+                Datastore datastore = row.getDatastore();
+                datastore.deleteRows(row);
+                rowRepository.delete(row);
             }
-            Datastore datastore = row.getDatastore();
-            datastore.deleteRows(row);
-            datastoreRepository.save(datastore);
-            return new ResponseEntity<>(HttpStatus.OK);
+            else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            if (datastoreOptional.isPresent()) {
+                Datastore datastore = datastoreOptional.get();
+                datastoreRepository.save(datastore);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         }
         catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

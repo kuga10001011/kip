@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Datastore } from "../../datastore.model";
 import { Field } from "../../field/field.model";
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from "@angular/cdk/drag-drop";
+import {ViewService} from "../view.service";
 
 @Component({
   selector: 'app-view-manage',
@@ -22,7 +23,7 @@ export class ViewManageComponent implements OnInit {
 
   mode: 'add' | 'edit' = 'add';
 
-  constructor(private datastoreService: DatastoreService, private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private datastoreService: DatastoreService, private activatedRoute: ActivatedRoute, private viewService: ViewService, private router: Router) {
     this.activatedRoute.queryParams.subscribe(params => {
       this.mode = params['mode'];
       if (params['datastoreId']) {
@@ -64,7 +65,21 @@ export class ViewManageComponent implements OnInit {
   }
 
   save(): void {
-
+    const name = this.viewForm.get('name')?.value;
+    if (this.chosenFields.length > 0 && name) {
+      this.viewService.add(this.datastore.id!, name, this.chosenFields).subscribe(
+        data => {
+          console.log(data);
+          console.log("successfully added")
+        },
+        error => {
+          console.log(error);
+        },
+        () => {
+          this.router.navigate(['/datastore/view'], {queryParams:{datastoreId: this.datastore.id}})
+        }
+      );
+    }
   }
 
 }

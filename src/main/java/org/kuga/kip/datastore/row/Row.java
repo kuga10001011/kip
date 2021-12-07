@@ -49,10 +49,7 @@ public class Row {
     }
 
     public void setFieldValues(Set<FieldValue> fieldValues) {
-        fieldValues.stream().forEachOrdered(fieldValue -> {
-            this.fieldValues.add(fieldValue);
-            fieldValue.setRow(this);
-        });
+        this.fieldValues = fieldValues;
     }
 
     public void addFieldValues(FieldValue ... fieldValues) {
@@ -62,7 +59,7 @@ public class Row {
         }
     }
 
-    public void removeFieldValues(FieldValue ... fieldValues) {
+    public void deleteFieldValues(FieldValue ... fieldValues) {
         Arrays.stream(fieldValues).forEachOrdered(fieldValue -> {
             this.fieldValues.remove(fieldValue);
         });
