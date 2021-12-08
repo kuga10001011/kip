@@ -3,6 +3,7 @@ package org.kuga.kip.datastore.row;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kuga.kip.datastore.Datastore;
+import org.kuga.kip.datastore.DatastoreController;
 import org.kuga.kip.datastore.DatastoreRepository;
 import org.kuga.kip.datastore.FieldValue;
 import org.kuga.kip.datastore.FieldValueRepository;
@@ -149,14 +150,7 @@ public class RowController {
             if (rowOptional.isPresent()) {
                 Row row = rowOptional.get();
                 datastoreOptional = datastoreRepository.findById(row.getDatastore().getId());
-                for (FieldValue fieldValue: row.getFieldValues()) {
-                    Field field = fieldValue.getField();
-                    field.deleteFieldValues(fieldValue);
-                    fieldRepository.save(field);
-                    row.deleteFieldValues(fieldValue);
-                    rowRepository.save(row);
-                    fieldValueRepository.delete(fieldValue);
-                }
+                DatastoreController.deleteFieldValues(row, fieldRepository, rowRepository, fieldValueRepository);
                 Datastore datastore = row.getDatastore();
                 datastore.deleteRows(row);
                 rowRepository.delete(row);

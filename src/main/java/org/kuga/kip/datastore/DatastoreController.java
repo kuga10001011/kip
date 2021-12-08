@@ -118,14 +118,7 @@ public class DatastoreController {
                 Iterator<Row> rowIterator = datastore.getRows().iterator();
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    for (FieldValue fieldValue: row.getFieldValues()) {
-                        Field field = fieldValue.getField();
-                        field.deleteFieldValues(fieldValue);
-                        fieldRepository.save(field);
-                        row.deleteFieldValues(fieldValue);
-                        rowRepository.save(row);
-                        fieldValueRepository.delete(fieldValue);
-                    }
+                    deleteFieldValues(row, fieldRepository, rowRepository, fieldValueRepository);
                     rowIterator.remove();
                     rowRepository.delete(row);
                 }
@@ -239,6 +232,17 @@ public class DatastoreController {
     public ResponseEntity<Datastore> get(@PathVariable("id") Long id) {
         Optional<Datastore> datastoreData = datastoreRepository.findById(id);
         return datastoreData.map(datastore -> new ResponseEntity<>(datastore, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    public static void deleteFieldValues(Row row, FieldRepository fieldRepository, RowRepository rowRepository, FieldValueRepository fieldValueRepository) {
+        for (FieldValue fieldValue: row.getFieldValues()) {
+            Field field = fieldValue.getField();
+            field.deleteFieldValues(fieldValue);
+            fieldRepository.save(field);
+            row.deleteFieldValues(fieldValue);
+            rowRepository.save(row);
+            fieldValueRepository.delete(fieldValue);
+        }
     }
 
 }
