@@ -1,10 +1,7 @@
 package org.kuga.kip.config;
 
-import org.kuga.kip.datastore.Datastore;
 import org.kuga.kip.datastore.DatastoreRepository;
-import org.kuga.kip.datastore.field.Field;
 import org.kuga.kip.datastore.field.FieldRepository;
-import org.kuga.kip.datastore.field.Type;
 import org.kuga.kip.user.ERole;
 import org.kuga.kip.user.Role;
 import org.kuga.kip.user.RoleRepository;
@@ -17,9 +14,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 @Component
 public class DatabaseInit implements CommandLineRunner {

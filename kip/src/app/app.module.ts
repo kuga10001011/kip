@@ -23,6 +23,7 @@ import { ViewComponent } from "./components/datastore/view/view.component";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 
 const routes: Routes = [
+  { path: '', component: HomeComponent },
   { path: 'row/manage', component: RowManageComponent },
   { path: 'datastore', component: DatastoreComponent },
   { path: 'datastore/view', component: DatastoreViewComponent },

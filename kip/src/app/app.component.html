@@ -4,7 +4,7 @@
     <span class="nav-spacer"></span>
     <div>
       <a mat-button [routerLink]="'/home'">home</a>
-      <a mat-button [routerLink]="'/datastore'">datastores</a>
+      <a mat-button *ngIf="loggedIn" [routerLink]="'/datastore'">datastores</a>
       <a mat-button *ngIf="showAdminContent" [routerLink]="'/user'">users</a>
       <a mat-button [routerLink]="'/user/manage'" [queryParams]="userManagementParams">
         <span *ngIf="loggedIn">edit profile</span>
